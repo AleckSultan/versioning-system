@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Nyeri IT Solutions</title>
+  <meta name="description" content="Sign in to Nyeri IT Solutions License Management Portal to track software licenses, subscriptions, and renewal dates." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/auth.css" />
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <div class="auth-page">
+    <!-- Left Brand Panel -->
+    <div class="auth-brand">
+      <div class="brand-blob"></div>
+      <div class="brand-blob"></div>
+      <div class="brand-blob"></div>
+
+      <div class="brand-logo">
+        <div class="brand-logo-icon">
+          <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-name">Nyeri IT Solutions</span>
+          <span class="brand-logo-sub">License Management</span>
+        </div>
+      </div>
+
+      <h1 class="brand-heading">
+        Manage Every
+        <span>License, Effortlessly.</span>
+      </h1>
+
+      <p class="brand-desc">
+        Track software subscriptions, assign licenses to clients, monitor renewal dates,
+        and get notified before anything expires — all from one dashboard.
+      </p>
+
+      <div class="brand-features">
+        <div class="brand-feature">
+          <div class="feature-icon"><i class="fa-solid fa-bell"></i></div>
+          Renewal alerts before licenses expire
+        </div>
+        <div class="brand-feature">
+          <div class="feature-icon"><i class="fa-solid fa-chart-pie"></i></div>
+          Visual dashboards and cost insights
+        </div>
+        <div class="brand-feature">
+          <div class="feature-icon"><i class="fa-solid fa-users"></i></div>
+          Multi-client license assignment
+        </div>
+        <div class="brand-feature">
+          <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          Secure role-based access control
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Form Panel -->
+    <div class="auth-form-panel">
+      <div class="auth-form-box">
+
+        <!-- Theme Toggle -->
+        <div class="auth-top-bar">
+          <span class="theme-label" id="theme-label-login">Light Mode</span>
+          <button
+            class="theme-toggle"
+            id="theme-toggle-login"
+            data-theme-toggle
+            aria-label="Toggle theme"
+            onclick="ThemeManager.toggleTheme(); updateThemeLabel();"
+          ></button>
+        </div>
+
+        <h2 class="auth-heading">Welcome back</h2>
+        <p class="auth-subheading">Sign in to your account to continue</p>
+
+        <!-- Error / Success -->
+        <div class="auth-error" id="login-error">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="login-error-msg">Invalid credentials.</span>
+        </div>
+
+        <form class="auth-form" id="login-form" novalidate>
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <input
+              type="email"
+              id="login-email"
+              class="clay-input"
+              placeholder="you@company.com"
+              autocomplete="email"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <div class="password-wrap">
+              <input
+                type="password"
+                id="login-password"
+                class="clay-input"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+              />
+              <button type="button" class="toggle-password" onclick="togglePwd('login-password', this)">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="clay-btn clay-btn-primary auth-submit" id="login-btn">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Sign In
+          </button>
+        </form>
+
+        <div class="auth-divider">or</div>
+
+        <div class="auth-switch">
+          Don't have an account?
+          <a href="/signup" id="go-signup">Create a client account</a>
+        </div>
+
+        <div class="admin-note" style="margin-top: 24px;">
+          <i class="fa-solid fa-circle-info"></i>
+          <p>Admin accounts are provisioned by Nyeri IT Solutions staff and cannot be self-registered.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script>
+    function updateThemeLabel() {
+      const theme = ThemeManager.getTheme();
+      document.getElementById('theme-label-login').textContent = theme === 'dark' ? 'Dark Mode' : 'Light Mode';
+    }
+    updateThemeLabel();
+
+    function togglePwd(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const isText = input.type === 'text';
+      input.type = isText ? 'password' : 'text';
+      btn.querySelector('i').className = isText ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+    }
+
+    function showToast(message, type = 'info') {
+      const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 3500);
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn = document.getElementById('login-btn');
+      const errorEl = document.getElementById('login-error');
+      const errorMsg = document.getElementById('login-error-msg');
+
+      errorEl.classList.remove('show');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorMsg.textContent = data.error || 'Invalid credentials.';
+          errorEl.classList.add('show');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In';
+          return;
+        }
+
+        localStorage.setItem('nyeri_token', data.token);
+        localStorage.setItem('nyeri_user', JSON.stringify(data.user));
+        showToast('Signed in successfully!', 'success');
+
+        setTimeout(() => {
+          window.location.href = data.user.role === 'admin' ? '/admin' : '/client';
+        }, 600);
+      } catch (err) {
+        errorMsg.textContent = 'Connection error. Please try again.';
+        errorEl.classList.add('show');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In';
+      }
+    });
+
+    // Redirect if already logged in
+    const token = localStorage.getItem('nyeri_token');
+    const user = localStorage.getItem('nyeri_user');
+    if (token && user) {
+      const u = JSON.parse(user);
+      window.location.href = u.role === 'admin' ? '/admin' : '/client';
+    }
+  </script>
+</body>
+</html>

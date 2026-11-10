@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Portal — Nyeri IT Solutions</title>
+  <meta name="description" content="View your assigned software licenses, renewal dates, and subscription details on the Nyeri IT Solutions client portal." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/client.css" />
+  <script src="/js/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+</head>
+<body>
+
+<div class="client-layout" id="app">
+
+  <!-- HEADER -->
+  <header class="client-header">
+    <div class="client-logo">
+      <div class="client-logo-icon">
+        <i class="fa-solid fa-layer-group"></i>
+      </div>
+      <span class="client-logo-name">Nyeri IT Solutions</span>
+    </div>
+
+    <nav class="client-nav">
+      <button class="client-nav-item active" data-view="overview" onclick="switchClientView('overview', this)">
+        <i class="fa-solid fa-gauge"></i> Overview
+      </button>
+      <button class="client-nav-item" data-view="licenses" onclick="switchClientView('licenses', this)">
+        <i class="fa-solid fa-key"></i> My Licenses
+      </button>
+      <button class="client-nav-item" data-view="notifications" onclick="switchClientView('notifications', this)">
+        <i class="fa-solid fa-bell"></i> Alerts
+        <span class="notif-badge" id="client-notif-badge" style="display:none;">0</span>
+      </button>
+    </nav>
+
+    <div class="client-header-right">
+      <div class="client-company-badge" id="client-company-badge">
+        <i class="fa-solid fa-building"></i>
+        <span id="client-company-name">Loading...</span>
+      </div>
+      <span class="theme-label" id="client-theme-label" style="font-size:0.78rem;color:var(--text-muted);">Light</span>
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme" onclick="ThemeManager.toggleTheme(); updateClientThemeLabel();"></button>
+      <button class="clay-btn clay-btn-secondary clay-btn-sm" onclick="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+      </button>
+    </div>
+  </header>
+
+  <!-- BODY -->
+  <main class="client-body">
+
+    <!-- ── OVERVIEW VIEW ── -->
+    <div class="client-view active" id="client-view-overview">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner" id="welcome-banner">
+        <h1 class="welcome-title">Welcome back, <span id="welcome-name">...</span></h1>
+        <p class="welcome-sub">Here is an overview of your software licenses and upcoming renewals.</p>
+        <div class="welcome-stats">
+          <div class="welcome-stat">
+            <span class="welcome-stat-value" id="ws-active">-</span>
+            <span class="welcome-stat-label">Active Licenses</span>
+          </div>
+          <div class="welcome-stat-sep"></div>
+          <div class="welcome-stat">
+            <span class="welcome-stat-value" id="ws-expiring">-</span>
+            <span class="welcome-stat-label">Expiring Soon</span>
+          </div>
+          <div class="welcome-stat-sep"></div>
+          <div class="welcome-stat">
+            <span class="welcome-stat-value" id="ws-expired">-</span>
+            <span class="welcome-stat-label">Expired</span>
+          </div>
+          <div class="welcome-stat-sep"></div>
+          <div class="welcome-stat">
+            <span class="welcome-stat-value" id="ws-cost">-</span>
+            <span class="welcome-stat-label">Annual Cost (KES)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="client-kpi-grid" id="client-kpi-grid">
+        <div class="loading-spinner"></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="client-charts-grid">
+        <div class="client-chart-card">
+          <div class="client-chart-title"><i class="fa-solid fa-chart-pie"></i> Services by Category</div>
+          <div style="height:240px; position:relative;">
+            <canvas id="client-chart-category"></canvas>
+          </div>
+        </div>
+        <div class="client-chart-card">
+          <div class="client-chart-title"><i class="fa-solid fa-calendar"></i> Renewal Timeline</div>
+          <div style="height:240px; position:relative;">
+            <canvas id="client-chart-timeline"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div class="section-header">
+        <h2 class="section-title">My Services</h2>
+      </div>
+      <div class="services-grid" id="services-grid">
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+
+    <!-- ── LICENSES VIEW ── -->
+    <div class="client-view" id="client-view-licenses">
+      <div class="section-header" style="margin-bottom:20px;">
+        <h2 class="section-title">My Licenses</h2>
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" class="clay-input" placeholder="Search..." oninput="filterTable('client-licenses-body', this.value)" style="width:220px;" />
+        </div>
+      </div>
+      <div class="clay-card" style="padding:0;overflow:hidden;">
+        <div class="clay-table-wrap">
+          <table class="clay-table">
+            <thead><tr>
+              <th>Software</th><th>Vendor</th><th>Category</th><th>Type</th><th>Seats</th><th>Cost/Year</th><th>Renewal Date</th><th>Days Left</th><th>Status</th>
+            </tr></thead>
+            <tbody id="client-licenses-body">
+              <tr><td colspan="9"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NOTIFICATIONS VIEW ── -->
+    <div class="client-view" id="client-view-notifications">
+      <div class="client-notif-header">
+        <h2 class="section-title">Alerts &amp; Notifications</h2>
+        <button class="clay-btn clay-btn-secondary clay-btn-sm" onclick="clientMarkAllRead()">
+          <i class="fa-solid fa-check-double"></i> Mark All Read
+        </button>
+      </div>
+      <div id="client-notifications-list">
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="/js/client.js"></script>
+</body>
+</html>

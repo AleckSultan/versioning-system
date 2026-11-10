@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — Nyeri IT Solutions</title>
+  <meta name="description" content="Create a client account on Nyeri IT Solutions to view your software licenses and subscription status." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/auth.css" />
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <div class="auth-page">
+    <!-- Left Brand Panel -->
+    <div class="auth-brand">
+      <div class="brand-blob"></div>
+      <div class="brand-blob"></div>
+      <div class="brand-blob"></div>
+
+      <div class="brand-logo">
+        <div class="brand-logo-icon">
+          <i class="fa-solid fa-layer-group"></i>
+        </div>
+        <div class="brand-logo-text">
+          <span class="brand-logo-name">Nyeri IT Solutions</span>
+          <span class="brand-logo-sub">License Management</span>
+        </div>
+      </div>
+
+      <h1 class="brand-heading">
+        Get Started
+        <span>as a Client.</span>
+      </h1>
+
+      <p class="brand-desc">
+        Register your company to gain access to your dedicated client portal. View your
+        assigned software licenses, track renewal timelines, and stay on top of your IT subscriptions.
+      </p>
+
+      <div class="brand-features">
+        <div class="brand-feature">
+          <div class="feature-icon"><i class="fa-solid fa-eye"></i></div>
+          View all your assigned licenses at a glance
+        </div>
+        <div class="brand-feature">
+          <div class="feature-icon"><i class="fa-solid fa-calendar-check"></i></div>
+          Renewal countdowns and date tracking
+        </div>
+        <div class="brand-feature">
+          <div class="feature-icon"><i class="fa-solid fa-bell"></i></div>
+          Instant alerts when renewals are due
+        </div>
+        <div class="brand-feature">
+          <div class="feature-icon"><i class="fa-solid fa-chart-bar"></i></div>
+          Cost and category breakdowns
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Form Panel -->
+    <div class="auth-form-panel">
+      <div class="auth-form-box">
+
+        <!-- Theme Toggle -->
+        <div class="auth-top-bar">
+          <span class="theme-label" id="theme-label-signup">Light Mode</span>
+          <button
+            class="theme-toggle"
+            id="theme-toggle-signup"
+            data-theme-toggle
+            aria-label="Toggle theme"
+            onclick="ThemeManager.toggleTheme(); updateThemeLabel();"
+          ></button>
+        </div>
+
+        <h2 class="auth-heading">Create your account</h2>
+        <p class="auth-subheading">Fill in your details to register your company</p>
+
+        <!-- Error / Success -->
+        <div class="auth-error" id="signup-error">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="signup-error-msg">An error occurred.</span>
+        </div>
+        <div class="auth-success" id="signup-success">
+          <i class="fa-solid fa-circle-check"></i>
+          <span id="signup-success-msg">Account created! Redirecting to sign in...</span>
+        </div>
+
+        <form class="auth-form" id="signup-form" novalidate>
+
+          <!-- Account Info -->
+          <div class="form-section-label">Account Information</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="signup-username">Full Name</label>
+              <input type="text" id="signup-username" class="clay-input" placeholder="John Doe" required />
+            </div>
+            <div class="form-group">
+              <label for="signup-email">Email Address</label>
+              <input type="email" id="signup-email" class="clay-input" placeholder="john@company.com" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="signup-password">Password</label>
+            <div class="password-wrap">
+              <input type="password" id="signup-password" class="clay-input" placeholder="Minimum 8 characters" required minlength="8" />
+              <button type="button" class="toggle-password" onclick="togglePwd('signup-password', this)">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="signup-confirm">Confirm Password</label>
+            <div class="password-wrap">
+              <input type="password" id="signup-confirm" class="clay-input" placeholder="Repeat password" required />
+              <button type="button" class="toggle-password" onclick="togglePwd('signup-confirm', this)">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Company Info -->
+          <div class="form-section-label" style="margin-top: 8px;">Company Information</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="signup-company">Company Name</label>
+              <input type="text" id="signup-company" class="clay-input" placeholder="Acme Ltd" required />
+            </div>
+            <div class="form-group">
+              <label for="signup-industry">Industry</label>
+              <select id="signup-industry" class="clay-input">
+                <option value="General">General</option>
+                <option value="Finance">Finance</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Logistics">Logistics</option>
+                <option value="Media">Media</option>
+                <option value="Education">Education</option>
+                <option value="Retail">Retail</option>
+                <option value="Technology">Technology</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="signup-phone">Phone Number</label>
+              <input type="tel" id="signup-phone" class="clay-input" placeholder="+254 7xx xxx xxx" />
+            </div>
+            <div class="form-group">
+              <label for="signup-address">City / Address</label>
+              <input type="text" id="signup-address" class="clay-input" placeholder="Nairobi, Kenya" />
+            </div>
+          </div>
+
+          <button type="submit" class="clay-btn clay-btn-primary auth-submit" id="signup-btn">
+            <i class="fa-solid fa-user-plus"></i>
+            Create Account
+          </button>
+        </form>
+
+        <div class="auth-switch" style="margin-top: 20px;">
+          Already have an account?
+          <a href="/">Sign in</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script>
+    function updateThemeLabel() {
+      const theme = ThemeManager.getTheme();
+      document.getElementById('theme-label-signup').textContent = theme === 'dark' ? 'Dark Mode' : 'Light Mode';
+    }
+    updateThemeLabel();
+
+    function togglePwd(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const isText = input.type === 'text';
+      input.type = isText ? 'password' : 'text';
+      btn.querySelector('i').className = isText ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+    }
+
+    function showToast(message, type = 'info') {
+      const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', warning: 'fa-triangle-exclamation', info: 'fa-circle-info' };
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, 3500);
+    }
+
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('signup-username').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const confirm = document.getElementById('signup-confirm').value;
+      const company_name = document.getElementById('signup-company').value.trim();
+      const industry = document.getElementById('signup-industry').value;
+      const phone = document.getElementById('signup-phone').value.trim();
+      const address = document.getElementById('signup-address').value.trim();
+
+      const btn = document.getElementById('signup-btn');
+      const errorEl = document.getElementById('signup-error');
+      const errorMsg = document.getElementById('signup-error-msg');
+      const successEl = document.getElementById('signup-success');
+
+      errorEl.classList.remove('show');
+      successEl.classList.remove('show');
+
+      if (!username || !email || !password || !company_name) {
+        errorMsg.textContent = 'Please fill in all required fields.';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      if (password.length < 8) {
+        errorMsg.textContent = 'Password must be at least 8 characters.';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      if (password !== confirm) {
+        errorMsg.textContent = 'Passwords do not match.';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating account...';
+
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password, company_name, contact_name: username, phone, address, industry })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorMsg.textContent = data.error || 'An error occurred.';
+          errorEl.classList.add('show');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
+          return;
+        }
+
+        document.getElementById('signup-success-msg').textContent = 'Account created! Redirecting to sign in...';
+        successEl.classList.add('show');
+        showToast('Account created successfully!', 'success');
+        setTimeout(() => { window.location.href = '/'; }, 2000);
+      } catch (err) {
+        errorMsg.textContent = 'Connection error. Please try again.';
+        errorEl.classList.add('show');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
+      }
+    });
+  </script>
+</body>
+</html>

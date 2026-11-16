@@ -77,7 +77,7 @@ const viewTitles = {
   clients: ['Clients', 'Admin / Clients'],
   software: ['Software Products', 'Admin / Software'],
   licenses: ['Licenses', 'Admin / Licenses'],
-  assignments: ['Assignments', 'Admin / Assignments'],
+  allocations: ['Allocations', 'Admin / Allocations'],
   users: ['Users', 'Admin / Users'],
   notifications: ['Notifications', 'Admin / Notifications']
 };
@@ -91,7 +91,7 @@ function switchView(view, el) {
   document.getElementById('topbar-title').textContent = title;
   document.getElementById('topbar-breadcrumb').textContent = breadcrumb;
 
-  const loaders = { clients: loadClients, software: loadSoftware, licenses: loadLicenses, assignments: loadAssignments, users: loadUsers, notifications: loadNotifications };
+  const loaders = { clients: loadClients, software: loadSoftware, licenses: loadLicenses, allocations: loadAllocations, users: loadUsers, notifications: loadNotifications };
   if (loaders[view]) loaders[view]();
 }
 
@@ -294,7 +294,7 @@ async function loadClients() {
 }
 
 function populateClientSelects() {
-  ['assignment-client', 'user-client'].forEach(id => {
+  ['allocation-client', 'user-client'].forEach(id => {
     const sel = document.getElementById(id);
     if (!sel) return;
     sel.innerHTML = '<option value="">-- Select Client --</option>' + allClients.map(c => `<option value="${c.id}">${c.company_name}</option>`).join('');
@@ -311,6 +311,8 @@ function editClient(id) {
   document.getElementById('client-phone').value = c.phone || '';
   document.getElementById('client-industry').value = c.industry || 'General';
   document.getElementById('client-address').value = c.address || '';
+  // Hide portal login section when editing an existing client
+  document.getElementById('client-portal-section').style.display = 'none';
   document.getElementById('client-modal-title').innerHTML = '<i class="fa-solid fa-building" style="color:var(--clay-purple);margin-right:8px;"></i>Edit Client';
   openModal('client-modal');
 }
@@ -331,8 +333,33 @@ document.getElementById('client-form').addEventListener('submit', async (e) => {
   const res = await api(method, path, body);
   if (!res) return;
   const data = await res.json();
-  if (res.ok) { showToast(id ? 'Client updated' : 'Client added', 'success'); closeModal('client-modal'); loadClients(); }
-  else showToast(data.error || 'Error saving client', 'error');
+  if (!res.ok) { showToast(data.error || 'Error saving client', 'error'); return; }
+
+  // If adding a new client and "Create portal login" is checked, create the user too
+  if (!id && document.getElementById('client-create-login').checked) {
+    const username = document.getElementById('client-username').value.trim();
+    const password = document.getElementById('client-password').value;
+    if (username && password) {
+      const userRes = await api('POST', '/admin/users', {
+        username,
+        email: body.email,
+        password,
+        role: 'client',
+        client_id: data.id,
+      });
+      if (userRes && !userRes.ok) {
+        const userData = await userRes.json();
+        showToast(`Client saved, but login creation failed: ${userData.error}`, 'warning');
+        closeModal('client-modal');
+        loadClients();
+        return;
+      }
+    }
+  }
+
+  showToast(id ? 'Client updated' : 'Client added', 'success');
+  closeModal('client-modal');
+  loadClients();
 });
 
 // ─── SOFTWARE ────────────────────────────────────────────────────
@@ -417,6 +444,12 @@ document.getElementById('software-form').addEventListener('submit', async (e) =>
   else showToast(data.error || 'Error saving software', 'error');
 });
 
+function toggleClientLogin(checked) {
+  document.getElementById('client-login-fields').style.display = checked ? '' : 'none';
+  document.getElementById('client-username').required = checked;
+  document.getElementById('client-password').required = checked;
+}
+
 function populateLicenseSoftwareSelect() {
   const sel = document.getElementById('license-software');
   sel.innerHTML = '<option value="">-- Select Software --</option>' + allSoftware.map(s => `<option value="${s.id}">${s.name} (${s.vendor})</option>`).join('');
@@ -430,7 +463,7 @@ async function loadLicenses() {
   const filter = document.getElementById('license-status-filter').value;
   const filtered = filter ? allLicenses.filter(l => l.status === filter) : allLicenses;
   renderLicenses(filtered);
-  populateAssignmentLicenseSelect();
+  populateAllocationLicenseSelect();
 }
 
 function renderLicenses(list) {
@@ -497,29 +530,29 @@ document.getElementById('license-form').addEventListener('submit', async (e) => 
   else showToast(data.error || 'Error saving license', 'error');
 });
 
-function populateAssignmentLicenseSelect() {
-  const sel = document.getElementById('assignment-license');
+function populateAllocationLicenseSelect() {
+  const sel = document.getElementById('allocation-license');
   sel.innerHTML = '<option value="">-- Select License --</option>' + allLicenses.map(l => `<option value="${l.id}">${l.software_name} — ${l.license_type} (${l.total_seats} seats)</option>`).join('');
 }
 
-// ─── ASSIGNMENTS ─────────────────────────────────────────────────
-let allAssignments = [];
+// ─── ALLOCATIONS ─────────────────────────────────────────────────
+let allAllocations = [];
 
-async function loadAssignments() {
+async function loadAllocations() {
   if (!allClients.length) await loadClients();
   if (!allLicenses.length) await loadLicenses();
 
   const res = await api('GET', '/admin/assignments');
   if (!res) return;
-  allAssignments = await res.json();
-  const tbody = document.getElementById('assignments-body');
+  allAllocations = await res.json();
+  const tbody = document.getElementById('allocations-body');
 
-  if (!allAssignments.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-link"></i><p>No assignments yet.</p></div></td></tr>`;
+  if (!allAllocations.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-link"></i><p>No allocations yet.</p></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = allAssignments.map(a => `
+  tbody.innerHTML = allAllocations.map(a => `
     <tr>
       <td><strong>${a.software_name}</strong><br><span class="text-muted">${a.vendor}</span></td>
       <td>${a.company_name}</td>
@@ -528,30 +561,31 @@ async function loadAssignments() {
       <td>${formatDate(a.renewal_date)}</td>
       <td>${statusBadge(a.license_status)}</td>
       <td>
-        <button class="icon-btn delete" onclick="confirmDelete('assignment', ${a.id}, '${a.software_name} for ${a.company_name}')" title="Remove"><i class="fa-solid fa-unlink"></i></button>
+        <button class="icon-btn delete" onclick="confirmDelete('allocation', ${a.id}, '${a.software_name} for ${a.company_name}')" title="Remove"><i class="fa-solid fa-unlink"></i></button>
       </td>
     </tr>
   `).join('');
 }
 
-document.getElementById('assignment-form').addEventListener('submit', async (e) => {
+document.getElementById('allocation-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const body = {
-    license_id: document.getElementById('assignment-license').value,
-    client_id: document.getElementById('assignment-client').value,
-    seats_allocated: parseInt(document.getElementById('assignment-seats').value),
-    assigned_date: document.getElementById('assignment-date').value,
-    notes: document.getElementById('assignment-notes').value,
+    license_id: document.getElementById('allocation-license').value,
+    client_id: document.getElementById('allocation-client').value,
+    seats_allocated: parseInt(document.getElementById('allocation-seats').value),
+    assigned_date: document.getElementById('allocation-date').value,
+    notes: document.getElementById('allocation-notes').value,
   };
   const res = await api('POST', '/admin/assignments', body);
   if (!res) return;
   const data = await res.json();
-  if (res.ok) { showToast('Assignment created', 'success'); closeModal('assignment-modal'); loadAssignments(); }
-  else showToast(data.error || 'Error creating assignment', 'error');
+  if (res.ok) { showToast('Allocation created', 'success'); closeModal('allocation-modal'); loadAllocations(); }
+  else showToast(data.error || 'Error creating allocation', 'error');
 });
 
-// Set today's date in assignment form
-document.getElementById('assignment-date').valueAsDate = new Date();
+// Set today's date in allocation form
+const allocationDateInput = document.getElementById('allocation-date');
+if (allocationDateInput) allocationDateInput.valueAsDate = new Date();
 
 // ─── USERS ───────────────────────────────────────────────────────
 async function loadUsers() {
@@ -639,7 +673,13 @@ function closeModal(id) {
     if (hiddenId) hiddenId.value = '';
   }
   // Reset modal titles
-  if (id === 'client-modal') document.getElementById('client-modal-title').innerHTML = '<i class="fa-solid fa-building" style="color:var(--clay-purple);margin-right:8px;"></i>Add Client';
+  if (id === 'client-modal') {
+    document.getElementById('client-modal-title').innerHTML = '<i class="fa-solid fa-building" style="color:var(--clay-purple);margin-right:8px;"></i>Add Client';
+    document.getElementById('client-portal-section').style.display = '';
+    document.getElementById('client-login-fields').style.display = 'none';
+    document.getElementById('client-username').required = false;
+    document.getElementById('client-password').required = false;
+  }
   if (id === 'software-modal') document.getElementById('software-modal-title').innerHTML = '<i class="fa-solid fa-box" style="color:var(--clay-teal);margin-right:8px;"></i>Add Software';
   if (id === 'license-modal') document.getElementById('license-modal-title').innerHTML = '<i class="fa-solid fa-key" style="color:var(--clay-orange);margin-right:8px;"></i>Add License';
 }
@@ -652,8 +692,8 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 });
 
 // ─── CONFIRM DELETE ───────────────────────────────────────────────
-const deleteEndpoints = { client: '/admin/clients', software: '/admin/software', license: '/admin/licenses', assignment: '/admin/assignments', user: '/admin/users' };
-const deleteReloaders = { client: loadClients, software: loadSoftware, license: loadLicenses, assignment: loadAssignments, user: loadUsers };
+const deleteEndpoints = { client: '/admin/clients', software: '/admin/software', license: '/admin/licenses', allocation: '/admin/assignments', user: '/admin/users' };
+const deleteReloaders = { client: loadClients, software: loadSoftware, license: loadLicenses, allocation: loadAllocations, user: loadUsers };
 
 function confirmDelete(type, id, name) {
   document.getElementById('confirm-title').textContent = `Delete ${type.charAt(0).toUpperCase() + type.slice(1)}`;

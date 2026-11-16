@@ -47,8 +47,8 @@
       <div class="nav-item" data-view="licenses" onclick="switchView('licenses', this)">
         <i class="fa-solid fa-key"></i> Licenses
       </div>
-      <div class="nav-item" data-view="assignments" onclick="switchView('assignments', this)">
-        <i class="fa-solid fa-link"></i> Assignments
+      <div class="nav-item" data-view="allocations" onclick="switchView('allocations', this)">
+        <i class="fa-solid fa-link"></i> Allocations
       </div>
 
       <span class="nav-label">Admin</span>
@@ -233,18 +233,18 @@
         </div>
       </div>
 
-      <!-- ── ASSIGNMENTS VIEW ── -->
-      <div class="view" id="view-assignments">
+      <!-- ── ALLOCATIONS VIEW ── -->
+      <div class="view" id="view-allocations">
         <div class="toolbar">
           <div class="toolbar-left">
             <div class="search-wrap">
               <i class="fa-solid fa-magnifying-glass"></i>
-              <input type="text" class="clay-input" id="assignments-search" placeholder="Search assignments..." oninput="filterTable('assignments-body', this.value)" style="width:260px;" />
+              <input type="text" class="clay-input" id="allocations-search" placeholder="Search allocations..." oninput="filterTable('allocations-body', this.value)" style="width:260px;" />
             </div>
           </div>
           <div class="toolbar-right">
-            <button class="clay-btn clay-btn-primary" onclick="openModal('assignment-modal')">
-              <i class="fa-solid fa-plus"></i> New Assignment
+            <button class="clay-btn clay-btn-primary" onclick="openModal('allocation-modal')">
+              <i class="fa-solid fa-plus"></i> New Allocation
             </button>
           </div>
         </div>
@@ -252,9 +252,9 @@
           <div class="clay-table-wrap">
             <table class="clay-table">
               <thead><tr>
-                <th>Software</th><th>Client</th><th>Seats</th><th>Assigned Date</th><th>Renewal Date</th><th>Status</th><th>Actions</th>
+                <th>Software</th><th>Client</th><th>Seats</th><th>Allocated Date</th><th>Renewal Date</th><th>Status</th><th>Actions</th>
               </tr></thead>
-              <tbody id="assignments-body">
+              <tbody id="allocations-body">
                 <tr><td colspan="7"><div class="loading-spinner"></div></td></tr>
               </tbody>
             </table>
@@ -365,7 +365,22 @@
         </div>
       </div>
       <div class="form-group mb-16"><label>Address</label><input type="text" id="client-address" class="clay-input" placeholder="Nairobi, Kenya" /></div>
-      <div class="modal-actions">
+
+      <!-- Portal login toggle — only shown when adding a new client -->
+      <div id="client-portal-section" style="border-top:1px solid var(--border-color);padding-top:16px;margin-top:4px;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500;margin-bottom:0;">
+          <input type="checkbox" id="client-create-login" onchange="toggleClientLogin(this.checked)" style="width:16px;height:16px;cursor:pointer;" />
+          Create portal login for this contact
+        </label>
+        <div id="client-login-fields" style="display:none;margin-top:14px;">
+          <div class="form-row mb-16">
+            <div class="form-group"><label>Username *</label><input type="text" id="client-username" class="clay-input" placeholder="jane.doe" /></div>
+            <div class="form-group"><label>Password *</label><input type="password" id="client-password" class="clay-input" placeholder="Minimum 8 characters" minlength="8" /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top:16px;">
         <button type="button" class="clay-btn clay-btn-secondary" onclick="closeModal('client-modal')">Cancel</button>
         <button type="submit" class="clay-btn clay-btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Client</button>
       </div>
@@ -442,25 +457,25 @@
   </div>
 </div>
 
-<!-- Assignment Modal -->
-<div class="modal-overlay" id="assignment-modal">
+<!-- Allocation Modal -->
+<div class="modal-overlay" id="allocation-modal">
   <div class="modal-box">
     <div class="modal-header">
-      <h3 id="assignment-modal-title"><i class="fa-solid fa-link" style="color:var(--clay-blue);margin-right:8px;"></i>New Assignment</h3>
-      <button class="modal-close" onclick="closeModal('assignment-modal')"><i class="fa-solid fa-xmark"></i></button>
+      <h3 id="allocation-modal-title"><i class="fa-solid fa-link" style="color:var(--clay-blue);margin-right:8px;"></i>New Allocation</h3>
+      <button class="modal-close" onclick="closeModal('allocation-modal')"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <form id="assignment-form">
-      <input type="hidden" id="assignment-id" />
-      <div class="form-group mb-16"><label>License *</label><select id="assignment-license" class="clay-input" required></select></div>
-      <div class="form-group mb-16"><label>Client *</label><select id="assignment-client" class="clay-input" required></select></div>
+    <form id="allocation-form">
+      <input type="hidden" id="allocation-id" />
+      <div class="form-group mb-16"><label>License *</label><select id="allocation-license" class="clay-input" required></select></div>
+      <div class="form-group mb-16"><label>Client *</label><select id="allocation-client" class="clay-input" required></select></div>
       <div class="form-row mb-16">
-        <div class="form-group"><label>Seats Allocated</label><input type="number" id="assignment-seats" class="clay-input" value="1" min="1" /></div>
-        <div class="form-group"><label>Assigned Date</label><input type="date" id="assignment-date" class="clay-input" /></div>
+        <div class="form-group"><label>Seats Allocated</label><input type="number" id="allocation-seats" class="clay-input" value="1" min="1" /></div>
+        <div class="form-group"><label>Allocated Date</label><input type="date" id="allocation-date" class="clay-input" /></div>
       </div>
-      <div class="form-group mb-16"><label>Notes</label><textarea id="assignment-notes" class="clay-input" rows="2" placeholder="Deployment notes..."></textarea></div>
+      <div class="form-group mb-16"><label>Notes</label><textarea id="allocation-notes" class="clay-input" rows="2" placeholder="Deployment notes..."></textarea></div>
       <div class="modal-actions">
-        <button type="button" class="clay-btn clay-btn-secondary" onclick="closeModal('assignment-modal')">Cancel</button>
-        <button type="submit" class="clay-btn clay-btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Assignment</button>
+        <button type="button" class="clay-btn clay-btn-secondary" onclick="closeModal('allocation-modal')">Cancel</button>
+        <button type="submit" class="clay-btn clay-btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Allocation</button>
       </div>
     </form>
   </div>

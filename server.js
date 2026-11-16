@@ -316,14 +316,14 @@ app.get('/api/admin/notifications', authenticateToken, requireAdmin, (req, res) 
   res.json(notifications);
 });
 
-app.put('/api/admin/notifications/:id/read', authenticateToken, requireAdmin, (req, res) => {
-  db.prepare('UPDATE notifications SET is_read = 1 WHERE id = ?').run(req.params.id);
-  res.json({ message: 'Marked as read' });
-});
-
 app.put('/api/admin/notifications/read-all', authenticateToken, requireAdmin, (req, res) => {
   db.prepare("UPDATE notifications SET is_read = 1 WHERE target_role IN ('admin','all')").run();
   res.json({ message: 'All marked as read' });
+});
+
+app.put('/api/admin/notifications/:id/read', authenticateToken, requireAdmin, (req, res) => {
+  db.prepare('UPDATE notifications SET is_read = 1 WHERE id = ?').run(req.params.id);
+  res.json({ message: 'Marked as read' });
 });
 
 // ─── CLIENT ROUTES ─────────────────────────────────────────────
@@ -376,14 +376,14 @@ app.get('/api/client/notifications', authenticateToken, requireClient, (req, res
   res.json(notifications);
 });
 
-app.put('/api/client/notifications/:id/read', authenticateToken, requireClient, (req, res) => {
-  db.prepare('UPDATE notifications SET is_read = 1 WHERE id = ?').run(req.params.id);
-  res.json({ message: 'Marked as read' });
-});
-
 app.put('/api/client/notifications/read-all', authenticateToken, requireClient, (req, res) => {
   db.prepare('UPDATE notifications SET is_read = 1 WHERE target_client_id = ?').run(req.user.client_id);
   res.json({ message: 'All marked as read' });
+});
+
+app.put('/api/client/notifications/:id/read', authenticateToken, requireClient, (req, res) => {
+  db.prepare('UPDATE notifications SET is_read = 1 WHERE id = ?').run(req.params.id);
+  res.json({ message: 'Marked as read' });
 });
 
 // ─── SERVE FRONTEND ────────────────────────────────────────────
